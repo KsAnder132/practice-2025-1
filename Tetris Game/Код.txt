@@ -1,0 +1,97 @@
+int main(int argc, char* args[]) {
+    if (!initialize()) {
+        return 1;
+    }
+
+    // Настройка генератора случайных чисел
+    std::mt19937 gen(time(0));
+    std::uniform_int_distribution<> distrib(0, MAX_RND_NUM);
+
+    bool running = true;
+    SDL_Event event;
+
+    // Инициализация пустого игрового поля
+    for (int i = 0; i < 10; i++) {
+        std::fill_n(board_state[i], 20, BLANK);
+    }
+
+    // Создание первой фигуры
+    spawn_new_piece(distrib(gen));
+
+    // Главный игровой цикл
+    while (running) {
+        // Обработка событий
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+            case SDL_EVENT_QUIT:
+                running = false; // Выход при закрытии окна
+                break;
+
+            case SDL_EVENT_KEY_DOWN:
+                // Обработка нажатий клавиш
+                switch (event.key.scancode) {
+                case SDL_SCANCODE_RIGHT: // Вправо
+                    if (can_active_move_horizontal(RIGHT)) {
+                        move_active_piece_horizontal(RIGHT);
+                    }
+                    break;
+                case SDL_SCANCODE_UP: // Вращение
+                    rotate_active_piece();
+                    break;
+                case SDL_SCANCODE_LEFT: // Влево
+                    if (can_active_move_horizontal(LEFT)) {
+                        move_active_piece_horizontal(LEFT);
+                    }
+                    break;
+                case SDL_SCANCODE_DOWN: // Ускорение вниз
+                    if (can_active_move_down()) {
+                        move_active_down();
+                    }
+                    break;
+                default:
+                    break;
+                }
+                break;
+
+            default:
+                break;
+            }
+        }
+
+        // Управление временем и скоростью игры
+        Uint32 currentTime = SDL_GetTicks(); // Текущее время в миллисекундах
+        Uint32 deltaTime = currentTime - lastTime; // Время с последнего кадра
+        lastTime = currentTime; // Обновление времени
+        accumulator += deltaTime;
+
+        // Автоматическое движение фигуры вниз
+        if (accumulator >= STEP_RATE_IN_MILLISECONDS) {
+            if (can_active_move_down()) {
+                move_active_down();
+            }
+            else {
+                // Проверка заполненных строк и создание новой фигуры
+                check_full_rows();
+                spawn_new_piece(distrib(gen));
+            }
+            accumulator -= STEP_RATE_IN_MILLISECONDS;
+        }
+
+        // Отрисовка
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Черный фон
+        SDL_RenderClear(renderer);
+
+        // Отрисовка игрового поля и сетки
+        draw_from_board_state(renderer);
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // Белая сетка
+        draw_tetris_grid(renderer);
+
+        // Обновление экрана
+        SDL_RenderPresent(renderer);
+        SDL_UpdateWindowSurface(window);
+    }
+
+    // Завершение работы
+    shutdown();
+    return 0;
+}
