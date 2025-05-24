@@ -53,7 +53,7 @@
 
 1) Добавьте необходимые заголовочные файлы:
 
-'''c++
+```c++
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <ctime>
@@ -61,12 +61,11 @@
 #include <tuple>
 #include <algorithm>
 #include <random>
-'''
+```
 
 2) Добавьте константы для размеров окна, блоков и других параметров:
    
-'''
-
+```c++
 constexpr int WINDOW_WIDTH = 422;          // Ширина окна
 constexpr int WINDOW_HEIGHT = 750;         // Высота окна
 constexpr float OUTER_BLOCK_WIDTH = 20;    // Ширина внешней части блока
@@ -77,28 +76,25 @@ constexpr int STEP_RATE_IN_MILLISECONDS = 300; // Интервал между ш
 constexpr int MAX_RND_NUM = 6;              // Максимальное число для выбора следующей фигуры
 constexpr int STARTING_PIVOT[] = { 5, 0 };    // Начальная точка вращения
 constexpr int SQUARE_IN_PIECE_ARRAY = 0;    // Индекс квадратной фигуры в массиве
-'''
+```
 
 3) Добавьте переменные времени, которые помогут с работой игры
    
-'''
-
+```c++
 Uint32 lastTime = SDL_GetTicks();          // Время последнего кадра
 Uint32 accumulator = 0;                    // Аккумулятор времени
-'''
+```
 
 4) Добавьте основные объекты, которые важны для запуска игры
    
-'''
-
+```c++
 SDL_Window* window = nullptr;       //Запуск окна
 SDL_Renderer* renderer = nullptr;   //Рендер окна
-'''
+```
 
 5) Создайте переменные enum для хранения цветов и направлений движения фигур. Учтите, что каждая фигура имеет только один цвет (поэтому их всего 7)
    
-'''
-
+```c++
 enum squareColor {
     RED,     // Красный
     BLUE,    // Синий
@@ -114,12 +110,11 @@ enum directionInput {
     LEFT,   // Влево
     RIGHT   // Вправо
 };
-'''
+```
 
 6) Задайте цветам их числовые обозначения RGB:
    
-'''
-
+```c++
 std::map<squareColor, std::tuple<int, int, int>> colorToRGB = {
     {RED, {255, 0, 0}},
     {GREEN, {0, 255, 0}},
@@ -129,20 +124,18 @@ std::map<squareColor, std::tuple<int, int, int>> colorToRGB = {
     {ORANGE, {250, 156, 28}},
     {CYAN, {0, 255, 255}}
 };
-'''
+```
 
 7) Сделайте флаг и задайте состояние игрового поля:
    
-'''
-
+```c++
 bool isActivePieceTheSquare = false;        // Флаг, является ли текущая фигура квадратом
 squareColor board_state[10][20];            // Состояние игрового поля (цвета клеток)
-'''
+```
 
 8) Задайте начальные координаты появления фигур (7 фигур, по 4 блока, координаты x и y):
    
-'''
-
+```c++
 int piece_starting_coordinates[7][4][2] = {
     {{4, 0},{5, 0},{4, 1},{5, 1}}, // Квадрат
     {{4, 0},{5, 0},{6, 0},{7, 0}}, // Палка
@@ -152,21 +145,19 @@ int piece_starting_coordinates[7][4][2] = {
     {{4, 0},{5, 0},{6, 0},{6, 1}}, // J-образная
     {{4, 0},{5, 0},{6, 0},{5, 1}}  // T-образная
 };
-'''
+```
 
 9) Продумайте работу с активной фигурой:
     
-'''
-
+```c++
 int active_coordinates[4][2];               // Координаты активной фигуры
 int active_pivot_point[2];                  // Центр вращения активной фигуры
 squareColor active_color;                   // Цвет активной фигуры
-'''
+```
 
 10) Пропишите функции, которые позволят взаимодействовать с фигурой:
     
-'''
-
+```c++
 // Проверка, не является ли координата частью активной фигуры
 bool is_not_active_coord(int x, int y) {
     for (int i = 0; i < 4; i++) {
@@ -372,12 +363,11 @@ void rotate_active_piece() {
     // Копирование временного состояния обратно
     std::copy(&temp_board_state[0][0], &temp_board_state[0][0] + 10 * 20, &board_state[0][0]);
 }
-'''
+```
 
 11) Создайте функцию инициализации SDL:
     
-'''
-
+```c++
 bool initialize() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Ошибка инициализации SDL: %s", SDL_GetError());
@@ -397,12 +387,11 @@ bool initialize() {
     }
     return true;
 }
-'''
+```
 
 12) Пропишите функцию завершения работы игры:
     
-'''
-
+```c++
 void shutdown() {
     if (window) {
         SDL_DestroyWindow(window);
@@ -411,12 +400,11 @@ void shutdown() {
     }
     SDL_Quit();
 }
-'''
+```
 
 13) Пропишите функцию main:
     
-'''
-
+```c++
 int main(int argc, char* args[]) {
     if (!initialize()) {
         return 1;
@@ -514,7 +502,7 @@ int main(int argc, char* args[]) {
     shutdown();
     return 0;
 }
-'''
+```
 
 ### Часть 3: Компиляция и запуск
 
